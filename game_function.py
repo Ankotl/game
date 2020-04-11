@@ -3,6 +3,12 @@ import pygame
 from bullet import Bullet
 
 
+def fire_bullet(game_set, screen, ship, bullets):
+    if len(bullets) < game_set.bullets_allowed:
+        new_bullet = Bullet(game_set, screen, ship)
+        bullets.add(new_bullet)
+
+
 def check_keydown_events(event, game_set, screen, ship, bullets):
     if event.key == pygame.K_RIGHT:
         ship.moving_right = True
@@ -13,9 +19,7 @@ def check_keydown_events(event, game_set, screen, ship, bullets):
     elif event.key == pygame.K_DOWN:
         ship.moving_down = True
     elif event.key == pygame.K_SPACE:
-        if len(bullets) < game_set.bullets_allowed:
-            new_bullet = Bullet(game_set, screen, ship)
-            bullets.add(new_bullet)
+        fire_bullet(game_set, screen, ship, bullets)
 
 
 def check_keyup_events(event, ship):
