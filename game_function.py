@@ -63,19 +63,24 @@ def check_play_button(game_set, screen, stats, play_button, ship, aliens, bullet
         ship.center_ship()
 
 
-def update_bullets(game_set, screen, ship, aliens, bullets):
+def update_bullets(game_set, screen, stats, score, ship, aliens, bullets):
     for bullet in bullets.copy():
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
-    check_bullet_alien_collisions(game_set, screen, ship, aliens, bullets)
+    check_bullet_alien_collisions(game_set, screen, stats, score, ship, aliens, bullets)
 
 
-def check_bullet_alien_collisions(game_set, screen, ship, aliens, bullets):
+def check_bullet_alien_collisions(game_set, screen, stats, score, ship, aliens, bullets):
     collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+    if collisions:
+        for aliens in collisions.values():
+            stats.score += game_set.aliens_point * len(aliens)
     if len(aliens) == 0:
         bullets.empty()
         game_set.increase_speed()
         create_fleet(game_set, screen, ship, aliens)
+    score.prep_score()
+    check_high_score(stats, score)
 
 
 def get_number_aliens_x(game_set, alien_width):
@@ -160,3 +165,9 @@ def check_aliens_bottom(game_set, stats, screen, ship, aliens, bullets):
         if alien.rect.bottom >= screen_rect.bottom:
             ship_hit(game_set, stats, screen, ship, aliens, bullets)
             break
+
+
+def check_high_score(stats, score):
+    if stats.score > stats.high_score:
+        stats.high_score = stats.score
+        score.prep_high_score()
