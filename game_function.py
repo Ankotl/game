@@ -1,5 +1,6 @@
 import sys
 import pygame
+from time import sleep
 from bullet import Bullet
 from alien import Alien
 
@@ -46,13 +47,18 @@ def check_events(game_set, screen, ship, bullets):
             check_keyup_events(event, ship)
 
 
-def update_bullets(aliens, bullets):
+def update_bullets(game_set, screen, ship, aliens, bullets):
     for bullet in bullets.copy():
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
+    check_bullet_alien_collisions(game_set, screen, ship, aliens, bullets)
+    if len(aliens) == 0:
+        bullets.empty()
+        create_fleet(game_set, screen, ship, aliens)
+
+
+def check_bullet_alien_collisions(game_set, screen, ship, aliens, bullets):
     collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
-
-
 
 
 def get_number_aliens_x(game_set, alien_width):
@@ -98,9 +104,24 @@ def change_fleet_direction(game_set, aliens):
     game_set.fleet_direction *= -1
 
 
-def update_aliens(game_set, aliens):
+def update_aliens(game_set, stats, screen, ship, aliens, bullets):
     check_fleet_edges(game_set, aliens)
     aliens.update()
+    if pygame.sprite.spritecollideany(ship, aliens):
+        ship_hit(game_set, stats, screen, ship, aliens, bullets)
+    check_aliens_bottom(game_set, stats, screen, ship, aliens, bullets)
+
+
+def ship_hit(game_set, stats, screen, ship, aliens, bullets):
+    if stats.ships_left > 0:
+        stats.ships_left -= 1
+        aliens.empty()
+        bullets.empty()
+        create_fleet(game_set, screen, ship, aliens)
+        ship.center_ship()
+        sleep(0.3)
+    else:
+        stats.game_active = False
 
 
 def update_screen(game_set, screen, ship, aliens, bullets):
@@ -110,3 +131,11 @@ def update_screen(game_set, screen, ship, aliens, bullets):
     ship.blitme()
     aliens.draw(screen)
     pygame.display.flip()
+
+
+def check_aliens_bottom(game_set, stats, screen, ship, aliens, bullets):
+    screen_rect = screen.get_rect()
+    for alien in aliens.sprites():
+        if alien.rect.bottom >= screen_rect.bottom:
+            ship_hit(game_set, stats, screen, ship, aliens, bullets)
+            break
