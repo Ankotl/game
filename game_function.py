@@ -53,6 +53,7 @@ def check_events(game_set, screen, stats, play_button, ship, aliens, bullets):
 def check_play_button(game_set, screen, stats, play_button, ship, aliens, bullets, mouse_x, mouse_y):
     button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
     if button_clicked and not stats.game_active:
+        game_set.initialize_dynamic_settings()
         pygame.mouse.set_visible(False)
         stats.resets_stats()
         stats.game_active = True
@@ -67,13 +68,14 @@ def update_bullets(game_set, screen, ship, aliens, bullets):
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
     check_bullet_alien_collisions(game_set, screen, ship, aliens, bullets)
-    if len(aliens) == 0:
-        bullets.empty()
-        create_fleet(game_set, screen, ship, aliens)
 
 
 def check_bullet_alien_collisions(game_set, screen, ship, aliens, bullets):
     collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+    if len(aliens) == 0:
+        bullets.empty()
+        game_set.increase_speed()
+        create_fleet(game_set, screen, ship, aliens)
 
 
 def get_number_aliens_x(game_set, alien_width):
@@ -140,12 +142,13 @@ def ship_hit(game_set, stats, screen, ship, aliens, bullets):
         pygame.mouse.set_visible(True)
 
 
-def update_screen(game_set, screen, stats, ship, aliens, bullets, play_button):
+def update_screen(game_set, screen, stats, score, ship, aliens, bullets, play_button):
     screen.fill(game_set.bg_color)
     for bullet in bullets.sprites():
         bullet.draw_bullet()
     ship.blitme()
     aliens.draw(screen)
+    score.show_score()
     if not stats.game_active:
         play_button.draw_button()
     pygame.display.flip()
