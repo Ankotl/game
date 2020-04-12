@@ -46,10 +46,13 @@ def check_events(game_set, screen, ship, bullets):
             check_keyup_events(event, ship)
 
 
-def update_bullet(bullets):
+def update_bullets(aliens, bullets):
     for bullet in bullets.copy():
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
+    collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+
+
 
 
 def get_number_aliens_x(game_set, alien_width):
