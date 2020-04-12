@@ -19,6 +19,7 @@ class Settings():
         self.aliens_point = 50
         self.score_scale = 1.5
 
+
     def initialize_dynamic_settings(self):
         self.ship_speed_factor = 2
         self.bullet_speed_factor = 3
